@@ -7,7 +7,7 @@ int main(void)
 {
     //Printf is used to print strings. 
     //Replace the below statement with your name
-    printf("Hello, my name is Sam\n");
+    printf("Hello, my name is Matthew\n");
 
     exit(0); //Exit the program with exit code 0
 }
