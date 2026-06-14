@@ -3,6 +3,8 @@
 struct stat;
 
 // system calls
+void procinfo(void);
+
 int fork(void);
 int exit(int) __attribute__((noreturn));
 int wait(int *);

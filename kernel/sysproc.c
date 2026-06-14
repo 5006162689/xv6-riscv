@@ -8,6 +8,13 @@
 #include "vm.h"
 
 uint64
+sys_procinfo(void)
+{
+  procinfo();
+  return 0;
+}
+
+uint64
 sys_exit(void)
 {
   int n;

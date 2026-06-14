@@ -126,6 +126,7 @@ mkfs/mkfs: mkfs/mkfs.c $K/fs.h $K/param.h
 .PRECIOUS: %.o
 
 UPROGS=\
+	$U/_create_proc\
 	$U/_cat\
 	$U/_echo\
 	$U/_forktest\

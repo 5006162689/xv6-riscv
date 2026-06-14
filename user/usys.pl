@@ -21,6 +21,8 @@ sub entry {
     print " ret\n";
 }
 	
+entry("procinfo");
+    
 entry("fork");
 entry("exit");
 entry("wait");

@@ -26,6 +26,29 @@ extern char trampoline[]; // trampoline.S
 // must be acquired before any p->lock.
 struct spinlock wait_lock;
 
+void procinfo(void) {
+  struct proc *p = myproc();
+
+  static char *states[] = {
+    [UNUSED] "UNUSED",
+    [SLEEPING] "SLEEPING",
+    [RUNNABLE] "RUNNABLE",
+    [RUNNING] "RUNNING",
+    [ZOMBIE] "ZOMBIE",
+  };
+  printf("%s : [%d]\n", p->name, p->pid);
+  printf("\tState: %s\n", states[p->state]);
+  printf("\t%lu bytes\n", p->sz);
+
+  if (p->parent != 0) {
+    printf("\tParent : [%d]\n", p->parent->pid);
+    printf("\t\tState : %s\n", states[p->parent->state]);
+  } else {
+    printf("\tParent : [none]\n");
+  }
+}
+
+
 // Allocate a page for each process's kernel stack.
 // Map it high in memory, followed by an invalid
 // guard page.
