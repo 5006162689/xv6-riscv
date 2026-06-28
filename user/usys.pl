@@ -21,6 +21,7 @@ sub entry {
     print " ret\n";
 }
 	
+entry("rude");
 entry("fork");
 entry("exit");
 entry("wait");

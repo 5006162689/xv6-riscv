@@ -20,11 +20,28 @@ static void freeproc(struct proc *p);
 
 extern char trampoline[]; // trampoline.S
 
+extern uint ticks;
+
+uint64
+sys_rude(void) {
+  int r;
+  argint(0, &r);
+  myproc()->rudeness = r;
+  return 0;
+}
+
 // helps ensure that wakeups of wait()ing
 // parents are not lost. helps obey the
 // memory model when using p->parent.
 // must be acquired before any p->lock.
 struct spinlock wait_lock;
+
+void
+set_rudeness(void) {
+
+  printf("Z\n");
+
+}
 
 // Allocate a page for each process's kernel stack.
 // Map it high in memory, followed by an invalid
@@ -124,6 +141,7 @@ allocproc(void)
 found:
   p->pid = allocpid();
   p->state = USED;
+  p->rudeness = 10;
 
   // Allocate a trapframe page.
   if ((p->trapframe = (struct trapframe *)kalloc()) == 0) {
@@ -424,6 +442,54 @@ kwait(uint64 addr)
 void
 scheduler(void)
 {
+// fairly fair scheduler
+  struct proc *p;
+  struct cpu *c = mycpu();
+
+  c->proc = 0;
+  for (;;) {
+    // calc total rudeness of the frame
+    intr_on();
+    int total_rudeness = 0;
+    for (p = proc; p < &proc[NPROC]; p++) {
+      acquire(&p->lock);
+      if (p->state == RUNNABLE) {
+        total_rudeness += p->rudeness; 
+      }
+      release (&p->lock);
+    }
+    for (p = proc; p < &proc[NPROC]; p++) {
+      acquire(&p->lock);
+      if (p->state == RUNNABLE) {
+        
+        // loop for rudeness/ total rudeness * time window
+        int run_time = (p->rudeness * 50) / total_rudeness;  // T = 50
+        int end = ticks + run_time;
+        p->state = RUNNING;
+        c->proc = p;
+        release(&p->lock);
+
+
+        while (ticks < end) {
+          acquire(&p->lock);
+          if (p->state != RUNNING) {
+            release(&p->lock);
+            break;
+          }
+          release(&p->lock);
+          swtch(&c->context, &p->context);
+        }
+        acquire(&p->lock);
+        c->proc = 0;
+        
+      }
+      release (&p->lock);
+    }
+  }
+}
+
+// Default RR
+  /*
   struct proc *p;
   struct cpu *c = mycpu();
 
@@ -461,6 +527,7 @@ scheduler(void)
     }
   }
 }
+  */
 
 // Switch to scheduler.  Must hold only p->lock
 // and have changed proc->state. Saves and restores
