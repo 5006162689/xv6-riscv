@@ -455,33 +455,26 @@ scheduler(void)
       acquire(&p->lock);
       if (p->state == RUNNABLE) {
         total_rudeness += p->rudeness; 
+        release(&p->lock);
       }
-      release (&p->lock);
+
     }
     for (p = proc; p < &proc[NPROC]; p++) {
       acquire(&p->lock);
-      if (p->state == RUNNABLE) {
+      if (p->state == RUNNABLE && total_rudeness > 0) {
         
         // loop for rudeness/ total rudeness * time window
         int run_time = (p->rudeness * 50) / total_rudeness;  // T = 50
+        if (run_time < 1) run_time = 1;
         int end = ticks + run_time;
-        p->state = RUNNING;
-        c->proc = p;
-        release(&p->lock);
 
+        while (ticks < end && p->state == RUNNABLE) {
 
-        while (ticks < end) {
-          acquire(&p->lock);
-          if (p->state != RUNNING) {
-            release(&p->lock);
-            break;
-          }
-          release(&p->lock);
+          p->state = RUNNING;
+          c->proc = p;
           swtch(&c->context, &p->context);
+          c->proc = 0;
         }
-        acquire(&p->lock);
-        c->proc = 0;
-        
       }
       release (&p->lock);
     }
