@@ -442,7 +442,7 @@ kwait(uint64 addr)
 void
 scheduler(void)
 {
-// fairly fair scheduler
+//* fairly fair scheduler
   struct proc *p;
   struct cpu *c = mycpu();
 
@@ -455,9 +455,9 @@ scheduler(void)
       acquire(&p->lock);
       if (p->state == RUNNABLE) {
         total_rudeness += p->rudeness; 
-        release(&p->lock);
+        
       }
-
+      release(&p->lock);
     }
     for (p = proc; p < &proc[NPROC]; p++) {
       acquire(&p->lock);
@@ -480,7 +480,7 @@ scheduler(void)
     }
   }
 }
-
+//*/
 // Default RR
   /*
   struct proc *p;

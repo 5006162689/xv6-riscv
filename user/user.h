@@ -3,7 +3,7 @@
 struct stat;
 
 // system calls
-int rude(void);
+int rude(int);
 int fork(void);
 int exit(int) __attribute__((noreturn));
 int wait(int *);
